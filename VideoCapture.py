@@ -14,14 +14,17 @@ def main():
     
     if(mode == 0):
         video_feed = cv.VideoCapture(0)
-
+        background_subtraction = cv.bgsegm.createBackgroundSubtractorMOG()
+        
         while True:
             found_next_frame, frame = video_feed.read()
 
             if not found_next_frame:
                 break
             
-
+            frame = background_subtraction.apply(frame)
+            # Draw a rectangle on the frame
+            cv.rectangle(frame, (300, 100), (500, 300), (0, 255, 0), 2)
             # Applying SIFT detector
             sift = cv.SIFT_create()
             keypoints = sift.detect(frame, None)
@@ -49,6 +52,8 @@ def main():
                 print("End of video or failed to read")
                 break
             
+            cv.rectangle(frame, (300, 100), (500, 300), (0, 255, 0), 2)
+            
             # Applying SIFT detector
             sift = cv.SIFT_create()
             keypoints = sift.detect(frame, None)
@@ -56,7 +61,8 @@ def main():
             # Marking the keypoint on the image using circles
             frame_with_keypoints = cv.drawKeypoints(frame ,
                                 keypoints ,
-                                frame_with_keypoints ,
+                                frame ,
+                                color=(0, 255, 0),
                                 flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
             
 
