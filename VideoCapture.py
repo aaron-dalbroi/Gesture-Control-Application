@@ -36,8 +36,19 @@ def main():
             if not found_next_frame:
                 print("End of video or failed to read")
                 break
+            
+            # Applying SIFT detector
+            sift = cv.SIFT_create()
+            keypoints = sift.detect(frame, None)
+            
+            # Marking the keypoint on the image using circles
+            frame_with_keypoints = cv.drawKeypoints(frame ,
+                                keypoints ,
+                                frame_with_keypoints ,
+                                flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+            
 
-            cv.imshow('Video Playback', frame)
+            cv.imshow('Video Playback', frame_with_keypoints)
 
             # Press 'q' to exit
             if cv.waitKey(25) & 0xFF == ord('q'):  # Check every 25ms for key press
