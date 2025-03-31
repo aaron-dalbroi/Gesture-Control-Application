@@ -20,9 +20,21 @@ def main():
 
             if not found_next_frame:
                 break
+            
 
-            gray_frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-            cv.imshow('Grayscale Feed', gray_frame)
+            # Applying SIFT detector
+            sift = cv.SIFT_create()
+            keypoints = sift.detect(frame, None)
+            
+            # Marking the keypoint on the image using circles
+            frame_with_keypoints = cv.drawKeypoints(frame ,
+                                keypoints ,
+                                frame ,
+                                color=(0, 255, 0),
+                                flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+            
+
+            cv.imshow('Video Playback', frame_with_keypoints)
 
             if cv.waitKey(1) & 0xFF == ord('q'):
                 break
