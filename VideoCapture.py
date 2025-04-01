@@ -1,5 +1,7 @@
 import cv2 as cv
 import mediapipe as mp
+import HandDetection as hd
+
 
 def main():
     mp_hands = mp.solutions.hands
@@ -16,33 +18,21 @@ def main():
             continue
     
     if mode == 0:
+        # Initialize the video-feed
         video_feed = cv.VideoCapture(0)
-
+        hand_detector = hd.HandDetector()
         while True:
             found_next_frame, frame = video_feed.read()
             if not found_next_frame:
                 break
             
             frame_rgb = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
-            results = hands.process(frame_rgb)
-            
-            x_min, y_min = float('inf'), float('inf')
-            x_max, y_max = float('-inf'), float('-inf')
-            if results.multi_hand_landmarks:
-                for hand_landmarks in results.multi_hand_landmarks:
-                                        # Create bounding box around the hand
 
-                    for landmark in hand_landmarks.landmark:
-                        x, y = int(landmark.x * frame.shape[1]), int(landmark.y * frame.shape[0])
-                        x_min, y_min = min(x, x_min), min(y, y_min)
-                        x_max, y_max = max(x, x_max), max(y, y_max)
-                    cv.rectangle(frame, (x_min - 25, y_min - 25), (x_max + 25, y_max + 25), (0, 255, 0), 2)
- 
-            
-            if(x_min < x_max and y_min < y_max and x_min > 0 and y_min > 0 and x_max < frame.shape[1] and y_max < frame.shape[0]):
-                cv.imshow('Hand Detection', frame[y_min:y_max, x_min:x_max])
-            else:
-                cv.imshow('Video Playback', frame)
+            frame_rgb = hand_detector.DetectHands(frame)
+
+
+            frame_rgb = cv.flip(frame_rgb, 1) 
+            cv.imshow('Video Playback', frame_rgb)
             if cv.waitKey(1) & 0xFF == ord('q'):
                 break
     

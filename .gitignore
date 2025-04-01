@@ -1,0 +1,42 @@
+# Python Bytecode files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+env/
+*.egg-info/
+
+# IDE files
+.vscode/
+.idea/
+
+# macOS system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+
+# Log files
+*.log
+
+# OpenCV files (if temporary files are generated)
+*.h5
+
+# MediaPipe related files (if any temporary or model files are generated)
+*.tflite
+
+# PyInstaller
+*.spec
+
+# Distribution / packaging
+build/
+dist/
+*.egg
+
+# Other generated files
+*.bak
+*.swp
+*.swo
