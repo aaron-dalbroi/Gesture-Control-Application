@@ -4,6 +4,8 @@ How to run
 ----------
 pip install opencv-python
 pip install mediapipe
+pip install pytorch
+
 
 run python VideoCapture.py
 Press 0 for camera feed or 1 for a video
