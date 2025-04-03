@@ -3,6 +3,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 import mediapipe as mp
+from collections import deque, Counter
 import HandDetection as hd
 import GestureModel
 
@@ -11,6 +12,7 @@ def main():
     hands = mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5)
     mp_draw = mp.solutions.drawing_utils
     model = GestureModel.GestureModel('rotated_gesture_model.pth')
+
 
     while True:
         mode = input("Enter mode (0 for webcam, 1 for video file): ")
@@ -22,6 +24,9 @@ def main():
             continue
     
     if mode == 0:
+        # Store last 12 predictions
+        prediction_history = deque(maxlen=12)  # Keeps only the last 12 elements
+        
         # Initialize the video-feed
         video_feed = cv.VideoCapture(0)
         hand_detector = hd.HandDetector()
@@ -33,33 +38,42 @@ def main():
             # Returns an image of the hand0 detected in the frame
             hand = hand_detector.DetectHands(frame)
             if(hand is not None):
-                
-
+            
 
                 # Normalizes the frame to 28x28 to match the input size of the model
-                normalized_frame = downsample_and_pad(hand, target_size=(28, 28))
-                
+                smaller_frame = downsample_and_pad(hand, target_size=(28, 28))
+                grayscale_frame = cv.cvtColor(smaller_frame, cv.COLOR_BGR2GRAY)
+                high_contrast_frame = cv.equalizeHist(grayscale_frame)
+                normalized_frame = high_contrast_frame.astype(np.float32) / 255.0  # Normalize to [0, 1]
+
                 # Convert to graycale and normalize
-                normalized_frame_grayscaled = cv.cvtColor(normalized_frame, cv.COLOR_BGR2GRAY).astype(np.float32) / 255.0
-            
-                predictions = model.predict(normalized_frame_grayscaled)
+
+                predictions = model.predict(normalized_frame)
                 predicted_class = np.argmax(predictions)  # Get the class with highest probability
 
-                # Define class names (assuming you have these in a list, update accordingly)
-                class_names = ['Open Palm', 'OK Sign', 'Pointing', 'Peace Sign']  # Replace with your actual class names
+                # Define class names
+                class_names = ['A', 'C', 'T', 'Y']  # Replace with your actual class names
                 
                 # Get the predicted class label
                 predicted_label = class_names[predicted_class]
                 
+                # Add prediction to history
+                prediction_history.append(predicted_label)
+
+                # Determine majority vote from the last 120 predictions
+                most_common_class = Counter(prediction_history).most_common(1)[0][0]
+                
                 # Display the predicted label on the frame
-                cv.putText(frame, f'Predicted: {predicted_label}', (10, 30), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv.LINE_AA)
+                # Flip the frame
+                frame = cv.flip(frame, 1)
+                cv.putText(frame, f'Predicted: {most_common_class}', (10, 30), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv.LINE_AA)
 
 
                 cv.imshow('Video Playback', frame)
                 if cv.waitKey(1) & 0xFF == ord('q'):
                     break
             else:
-
+                frame = cv.flip(frame, 1)
                 cv.putText(frame, f'Hand Not Detected', (10, 30), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv.LINE_AA)
 
                 cv.imshow('Video Playback', frame)

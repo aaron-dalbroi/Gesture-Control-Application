@@ -43,12 +43,17 @@ class HandDetector:
                 # If our bounding box is within the frame, we can proceed with processing
                 if(self.ValidateBoundingBox(frame)):
                     
+                    # Draw a bounding box around the detected hand
+                    cv.rectangle(frame, 
+                                (self.bb_x_min, self.bb_y_min), 
+                                (self.bb_x_max, self.bb_y_max), 
+                                (0, 255, 0), 2)  # Green box, thickness=2
+
+
                     # Isolate the region of interest (ROI) around the hand
                     cropped_frame = frame[self.bb_y_min:self.bb_y_max, self.bb_x_min:self.bb_x_max]
                     
                     # cropped_frame = cv.cvtColor(cropped_frame, cv.COLOR_BGR2GRAY)
-
-
 
                     # Perform morphological opening to remove noise
                     #kernel = cv.getStructuringElement(cv.MORPH_RECT, (5, 5))
