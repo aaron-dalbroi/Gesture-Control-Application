@@ -34,3 +34,4 @@ If you wish to make your own,
 2. Make any changes to the file
 3. Run the script
 4. Download the new rotated_gesture_model.pth file generated and replace the old rotated_gesture_model.pth in the repository.\ 
+ax
